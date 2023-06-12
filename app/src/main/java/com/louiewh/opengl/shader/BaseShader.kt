@@ -1,12 +1,15 @@
-package com.louiewh.opengl
+package com.louiewh.opengl.shader
 
 import android.opengl.GLES20
 import android.util.Log
+import javax.microedition.khronos.opengles.GL10
 
 abstract class BaseShader {
     private companion object {
         val TAG:String = "ES20_BaseShader"
     }
+
+    val VERTICES_FLOAT_SIZE:Int by lazy { Float.SIZE_BYTES }
 
     private var mProgram:Int = 0
 
@@ -15,6 +18,8 @@ abstract class BaseShader {
     abstract fun getVerticesSource():String
 
     abstract fun getFragmentSource():String
+
+    abstract fun  onDrawFrame(gl: GL10?)
 
 
     fun initGLES20(){
@@ -26,17 +31,6 @@ abstract class BaseShader {
 
     protected open fun getShaderProgram():Int{
         return mProgram
-    }
-
-    private fun loadShader(shaderType: Int, sourceCode: String): Int {
-        var shader = GLES20.glCreateShader(shaderType)
-        if (shader != 0) {
-            GLES20.glShaderSource(shader, sourceCode)
-            GLES20.glCompileShader(shader)
-        }
-
-        shader = checkGetShaderiv(shader, shaderType)
-        return shader
     }
 
     private fun createProgram(vertexSource: String, fragmentSource: String): Int {
@@ -55,11 +49,26 @@ abstract class BaseShader {
             GLES20.glLinkProgram(program)
         }
 
-        program = checkGetProgramiv(program)
+        program = checkProgramiv(program)
+
+        GLES20.glDeleteShader(vertexShader)
+        GLES20.glDeleteShader(pixelShader)
+
         return program
     }
 
-    private fun checkGetShaderiv(shader: Int, shaderType: Int): Int {
+    private fun loadShader(shaderType: Int, sourceCode: String): Int {
+        var shader = GLES20.glCreateShader(shaderType)
+        if (shader != 0) {
+            GLES20.glShaderSource(shader, sourceCode)
+            GLES20.glCompileShader(shader)
+        }
+
+        shader = checkShaderiv(shader, shaderType)
+        return shader
+    }
+
+    private fun checkShaderiv(shader: Int, shaderType: Int): Int {
         val compiled = IntArray(1)
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, 0)
         if (compiled[0] == 0) {
@@ -72,7 +81,7 @@ abstract class BaseShader {
         return shader
     }
 
-    private fun checkGetProgramiv(program: Int): Int {
+    private fun checkProgramiv(program: Int): Int {
         val linkStatus = IntArray(1)
         GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0)
         if (linkStatus[0] != GLES20.GL_TRUE) {

@@ -1,4 +1,4 @@
-package com.louiewh.opengl
+package com.louiewh.opengl.shader
 
 import android.opengl.GLES20
 import java.nio.ByteBuffer
@@ -37,7 +37,7 @@ open class TriangleShader: BaseShader() {
         return fragmentSource
     }
 
-    open fun onDrawFrame(gl: GL10?) {
+    override fun onDrawFrame(gl: GL10?) {
         val vertices = getVertices()
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_COLOR_BUFFER_BIT)
         GLES20.glUseProgram(getShaderProgram())
@@ -57,7 +57,7 @@ open class TriangleShader: BaseShader() {
         )
 
         // vertices.length*4是因为一个float占四个字节
-        val vertexBuffer = ByteBuffer.allocateDirect(vertices.size * 4)//4个字节
+        val vertexBuffer = ByteBuffer.allocateDirect(vertices.size * VERTICES_FLOAT_SIZE)//4个字节
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer()
             .put(vertices)

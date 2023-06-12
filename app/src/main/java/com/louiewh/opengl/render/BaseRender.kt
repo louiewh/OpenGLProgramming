@@ -1,14 +1,20 @@
-package com.louiewh.opengl
+package com.louiewh.opengl.render
 
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import com.louiewh.opengl.shader.BaseShader
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
+abstract class BaseRender:GLSurfaceView.Renderer  {
 
-class TriangleRender:GLSurfaceView.Renderer {
+    protected lateinit var shader:BaseShader
 
-    private val triangleShader: TriangleShader = TriangleShaderVBO()
+    init {
+        initShader()
+    }
+
+    abstract fun initShader()
 
     open fun setGLSurfaceView(glSurfaceView:GLSurfaceView){
         // 设置 OpenGL 版本(一定要设置)
@@ -20,7 +26,7 @@ class TriangleRender:GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        triangleShader.initGLES20()
+        shader.initGLES20()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -28,6 +34,6 @@ class TriangleRender:GLSurfaceView.Renderer {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        triangleShader.onDrawFrame(gl)
+        shader.onDrawFrame(gl)
     }
 }

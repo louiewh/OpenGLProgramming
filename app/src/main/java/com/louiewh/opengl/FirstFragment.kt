@@ -1,6 +1,5 @@
 package com.louiewh.opengl
 
-import android.opengl.GLSurfaceView
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.louiewh.opengl.databinding.FragmentFirstBinding
+import com.louiewh.opengl.render.TriangleRenderVAO
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -46,7 +46,7 @@ class FirstFragment : Fragment() {
     }
 
     private fun initGLSurfaceViw() {
-        val triangleRender = TriangleRender()
+        val triangleRender = TriangleRenderVAO()
         triangleRender.setGLSurfaceView(binding.glsurfaceview)
     }
 }

@@ -46,11 +46,7 @@ class FirstFragment : Fragment() {
     }
 
     private fun initGLSurfaceViw() {
-        // 设置 OpenGL 版本(一定要设置)
-        binding.glsurfaceview.setEGLContextClientVersion(2)
-        // 设置渲染器(后面会讲，可以理解成画笔)
-        binding.glsurfaceview.setRenderer(GLSurfaceViewRender())
-        // 设置渲染模式为连续模式(会以 60 fps 的速度刷新)
-        binding.glsurfaceview.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+        val triangleRender = TriangleRender()
+        triangleRender.setGLSurfaceView(binding.glsurfaceview)
     }
 }

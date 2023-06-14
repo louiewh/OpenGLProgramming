@@ -29,7 +29,7 @@ class TriangleShaderVAO: TriangleShader() {
         val timeValue: Long = System.currentTimeMillis()
         if(timeValue - mCurrentTime > 100) {
             mCurrentTime = timeValue
-            mGreenValue = (sin((timeValue).toDouble() / 2) + 0.5f).toFloat()
+            mGreenValue = (sin(timeValue.toDouble() )/2 + 0.5f).toFloat()
             GLES20.glUniform4f(uColor, 0.0f, mGreenValue, 0.0f, 1.0f)
             Log.e("GLES", "greenVale: $mGreenValue")
         }

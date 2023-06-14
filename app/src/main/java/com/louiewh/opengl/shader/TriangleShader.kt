@@ -29,7 +29,7 @@ open class TriangleShader: BaseShader() {
         uColor = GLES20.glGetUniformLocation(program, "uColor")
     }
 
-    override fun getVerticesSource(): String {
+    override fun getVertexSource(): String {
         return verticesSource
     }
 

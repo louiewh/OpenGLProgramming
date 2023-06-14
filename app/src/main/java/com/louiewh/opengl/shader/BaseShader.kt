@@ -15,7 +15,7 @@ abstract class BaseShader {
 
     abstract fun onInitGLES(program: Int)
 
-    abstract fun getVerticesSource():String
+    abstract fun getVertexSource():String
 
     abstract fun getFragmentSource():String
 
@@ -25,7 +25,7 @@ abstract class BaseShader {
     fun initGLES20(){
         GLES20.glClearColor(1.0f, 0F, 0F, 1.0f)
 
-        mProgram = createProgram(getVerticesSource(), getFragmentSource())
+        mProgram = createProgram(getVertexSource(), getFragmentSource())
         onInitGLES(mProgram)
     }
 

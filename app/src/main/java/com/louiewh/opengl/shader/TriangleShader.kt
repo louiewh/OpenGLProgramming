@@ -49,7 +49,7 @@ open class TriangleShader: BaseShader() {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 3)
     }
 
-    fun getVertices(): FloatBuffer {
+    open fun getVertices(): FloatBuffer {
         val vertices = floatArrayOf(
             0.0f, 0.5f,
             -0.5f, -0.5f,

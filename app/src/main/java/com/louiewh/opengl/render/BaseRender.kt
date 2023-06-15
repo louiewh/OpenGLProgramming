@@ -18,7 +18,7 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
 
     open fun setGLSurfaceView(glSurfaceView:GLSurfaceView){
         // 设置 OpenGL 版本(一定要设置)
-        glSurfaceView.setEGLContextClientVersion(2)
+        glSurfaceView.setEGLContextClientVersion(3)
         // 设置渲染器(后面会讲，可以理解成画笔)
         glSurfaceView.setRenderer(this)
         // 设置渲染模式为连续模式(会以 60 fps 的速度刷新)

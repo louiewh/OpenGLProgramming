@@ -1,13 +1,14 @@
 package com.louiewh.opengl
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.louiewh.opengl.databinding.FragmentFirstBinding
-import com.louiewh.opengl.render.TriangleRenderVAO
+import com.louiewh.opengl.render.GlesRender
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -36,8 +37,8 @@ class FirstFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
-
-        initGLSurfaceViw()
+        val render = arguments?.getString("Render")
+        initGLSurfaceViw(render)
     }
 
     override fun onDestroyView() {
@@ -45,8 +46,14 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
-    private fun initGLSurfaceViw() {
-        val triangleRender = TriangleRenderVAO()
-        triangleRender.setGLSurfaceView(binding.glsurfaceview)
+    private fun initGLSurfaceViw(render:String?) {
+        Log.e("Gles", "initGLSurfaceViw $render")
+        render?.let {
+            Log.e("Gles", "initGLSurfaceViw apply $render")
+            GlesRender(it).apply {
+                this.initShader()
+                this.setGLSurfaceView(binding.glsurfaceview)
+            }
+        }
     }
 }

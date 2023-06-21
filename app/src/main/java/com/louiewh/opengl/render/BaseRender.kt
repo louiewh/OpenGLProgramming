@@ -8,11 +8,7 @@ import javax.microedition.khronos.opengles.GL10
 
 abstract class BaseRender:GLSurfaceView.Renderer  {
 
-    protected lateinit var shader:BaseShader
-
-    init {
-        initShader()
-    }
+    protected var shader:BaseShader? = null
 
     abstract fun initShader()
 
@@ -26,7 +22,7 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        shader.initGLES20()
+        shader?.initGLES20()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -34,6 +30,6 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        shader.onDrawFrame(gl)
+        shader?.onDrawFrame(gl)
     }
 }

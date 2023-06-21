@@ -1,0 +1,229 @@
+package com.louiewh.opengl.shader
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.BitmapFactory.Options
+import android.opengl.GLES20
+import android.opengl.GLES30
+import android.opengl.GLUtils
+import com.louiewh.opengl.ContextUtil
+import com.louiewh.opengl.R
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
+import java.nio.IntBuffer
+import javax.microedition.khronos.opengles.GL10
+
+class Texture2DRender :BaseShader() {
+    private var VBO = 0
+    private var VAO = 0
+    private var EBO = 0
+    private var  mTextureId = 0
+
+    private  val verticesSource =
+        "#version 300 es\n" +
+                "layout (location = 0) in vec3 aPos;\n" +
+                "layout (location = 1) in vec3 aColor;\n" +
+                "layout (location = 2) in vec2 aTexCoord;\n" +
+                "\n" +
+                "out vec3 ourColor;\n" +
+                "out vec2 TexCoord;\n" +
+                "\n" +
+                "void main()\n" +
+                "{\n" +
+                "    gl_Position = vec4(aPos, 1.0);\n" +
+                "    ourColor = aColor;\n" +
+                "    TexCoord = aTexCoord;\n" +
+                "}"
+
+
+    private  val fragmentSource =
+        "#version 300 es\n" +
+            "out vec4 FragColor;\n" +
+            "\n" +
+            "in vec3 ourColor;\n" +
+            "in vec2 TexCoord;\n" +
+            "\n" +
+            "uniform sampler2D ourTexture;\n" +
+            "\n" +
+            "void main()\n" +
+            "{\n" +
+            "    FragColor = texture(ourTexture, TexCoord);\n" +
+            "}"
+
+    private var vPosition = 0
+    private var vColor = 0
+    private var vTexCoord = 0
+
+    override fun onInitGLES(program: Int) {
+        vPosition = GLES20.glGetAttribLocation(program, "aPos")
+        vColor    = GLES20.glGetAttribLocation(program, "aColor")
+        vTexCoord = GLES20.glGetAttribLocation(program, "aTexCoord")
+
+        initVBO()
+        initEBO()
+        initVAO()
+        initTexture()
+    }
+
+    override fun getVertexSource(): String {
+        return verticesSource
+    }
+
+    override fun getFragmentSource(): String {
+        return fragmentSource
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+        GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
+        GLES30.glUseProgram(getShaderProgram())
+
+//        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
+        GLES30.glBindVertexArray(VAO)
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
+
+        GLES30.glBindVertexArray(GLES30.GL_NONE)
+    }
+
+    private fun initVBO() {
+        val vertices = getVertices()
+
+        val intArray = IntArray(1)
+        GLES30.glGenBuffers(1, intArray, 0)
+        VBO = intArray[0]
+
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
+        GLES30.glBufferData(GLES30.GL_ARRAY_BUFFER, vertices.capacity() * VERTICES_FLOAT_SIZE, vertices, GLES30.GL_STREAM_DRAW)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, GLES30.GL_NONE)
+    }
+
+    private fun initEBO(){
+        val indices = getIndex()
+
+        val intArray = IntArray(1)
+        GLES30.glGenBuffers(1, intArray, 0)
+        EBO = intArray[0]
+
+        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        GLES30.glBufferData(
+            GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
+            GLES20.GL_STATIC_DRAW
+        )
+        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
+    }
+
+    private fun initVAO() {
+        val intArray = IntArray(1)
+        GLES30.glGenVertexArrays(1, intArray, 0)
+        VAO = intArray[0]
+
+        //绑定VAO对象, VBO 的操作记录在VAO中
+        GLES30.glBindVertexArray(VAO)
+
+        // VBO bind
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
+        // EBO bind
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
+
+        GLES30.glVertexAttribPointer(vPosition, 2, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 0)
+        GLES30.glVertexAttribPointer(vColor,    2, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 3*VERTICES_FLOAT_SIZE)
+        GLES30.glVertexAttribPointer(vTexCoord, 2, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 6*VERTICES_FLOAT_SIZE)
+
+        GLES30.glEnableVertexAttribArray(vPosition)
+        GLES30.glEnableVertexAttribArray(vColor)
+        GLES30.glEnableVertexAttribArray(vTexCoord)
+
+        //解绑
+        GLES30.glBindVertexArray(GLES30.GL_NONE)
+        GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, GLES30.GL_NONE)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
+        // finish VBO bind
+    }
+
+    private fun getVertices(): FloatBuffer {
+        val vertices = floatArrayOf(
+            // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
+            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
+            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 右下
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 左下
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 左上
+        )
+
+        // vertices.length*4是因为一个float占四个字节
+        val vertexBuffer = ByteBuffer.allocateDirect(vertices.size * VERTICES_FLOAT_SIZE)//4个字节
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
+            .put(vertices)
+            .apply {
+                position(0)
+            }
+
+        return vertexBuffer
+    }
+
+    private fun getIndex(): IntBuffer {
+        val indices = intArrayOf(
+            // 注意索引从0开始!
+            // 此例的索引(0,1,2,3)就是顶点数组vertices的下标，
+            // 这样可以由下标代表顶点组合成矩形
+
+            0, 1, 3, // 第一个三角形
+            1, 2, 3  // 第二个三角形
+        )
+
+        val eboBuffer = ByteBuffer.allocateDirect(indices.size * Int.SIZE_BYTES)//4个字节
+            .order(ByteOrder.nativeOrder())
+            .asIntBuffer()
+            .put(indices)
+            .apply {
+                position(0)
+            }
+
+        return eboBuffer
+    }
+
+    private fun initTexture(){
+        val intArray = IntArray(1)
+        GLES30.glGenBuffers(1, intArray, 0)
+        mTextureId = intArray[0]
+
+        var bitmap = loadImageData(ContextUtil.getContext())
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE_2D)
+        GLES30.glBindBuffer(GLES30.GL_TEXTURE_2D, mTextureId)
+
+        // 为当前绑定的纹理对象设置环绕、过滤方式
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_REPEAT)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
+
+        GLES30.glTexImage2D(
+            GLES30.GL_TEXTURE_2D,
+            0,
+            GLES30.GL_RGBA,
+            bitmap.width,
+            bitmap.height,
+            0,
+            GLES30.GL_RGBA,
+            GLES30.GL_UNSIGNED_BYTE,
+            getBitmapPixels(bitmap)
+        )
+
+        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+        GLES30.glBindBuffer(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
+        bitmap.recycle()
+    }
+
+    private fun loadImageData(context:Context): Bitmap {
+        return BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
+    }
+
+    private fun getBitmapPixels(bitmap:Bitmap):ByteBuffer{
+        val buf = ByteBuffer.allocate(bitmap.byteCount).order(ByteOrder.nativeOrder())
+        bitmap.copyPixelsToBuffer(buf)
+        buf.rewind()
+
+        return buf
+    }
+}

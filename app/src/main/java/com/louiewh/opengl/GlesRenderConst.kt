@@ -7,5 +7,6 @@ object GlesRenderConst {
         "TriangleShaderVBO",
         "TriangleShaderVAO",
         "ShaderStructArray",
+        "Texture2D"
     )
 }

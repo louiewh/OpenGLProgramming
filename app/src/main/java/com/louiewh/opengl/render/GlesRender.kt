@@ -3,6 +3,7 @@ package com.louiewh.opengl.render
 import android.util.Log
 import com.louiewh.opengl.GlesRenderConst
 import com.louiewh.opengl.shader.ShaderStructArray
+import com.louiewh.opengl.shader.Texture2DRender
 import com.louiewh.opengl.shader.TriangleShader
 import com.louiewh.opengl.shader.TriangleShaderVAO
 import com.louiewh.opengl.shader.TriangleShaderVBO
@@ -25,7 +26,7 @@ class GlesRender(private val render:String): BaseRender() {
                 shader = ShaderStructArray()
             }
             GlesRenderConst.renderArray[4] ->{
-
+                shader = Texture2DRender()
             }
             GlesRenderConst.renderArray[5] ->{
 

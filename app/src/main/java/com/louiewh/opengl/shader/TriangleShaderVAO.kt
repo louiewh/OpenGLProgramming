@@ -4,7 +4,6 @@ import android.opengl.GLES20
 import android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER
 import android.opengl.GLES20.GL_STATIC_DRAW
 import android.opengl.GLES30
-import android.util.Log
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -117,6 +116,12 @@ class TriangleShaderVAO: TriangleShader() {
             }
 
         return vertexBuffer
+    }
+
+    override fun onDestroyGLES() {
+        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
     }
 
     private fun getIndex():IntBuffer{

@@ -29,6 +29,10 @@ open class TriangleShader: BaseShader() {
         uColor = GLES20.glGetUniformLocation(program, "uColor")
     }
 
+    override fun onDestroyGLES() {
+
+    }
+
     override fun getVertexSource(): String {
         return verticesSource
     }

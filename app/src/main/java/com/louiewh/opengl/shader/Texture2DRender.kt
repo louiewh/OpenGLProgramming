@@ -76,6 +76,13 @@ class Texture2DRender :BaseShader() {
         initTexture()
     }
 
+    override fun onDestroyGLES() {
+        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES20.glDeleteTextures(1, IntArray(mTextureId), 0)
+    }
+
     override fun getVertexSource(): String {
         return verticesSource
     }

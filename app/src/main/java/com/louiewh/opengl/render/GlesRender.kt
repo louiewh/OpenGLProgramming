@@ -9,7 +9,6 @@ import com.louiewh.opengl.shader.TriangleShaderVAO
 import com.louiewh.opengl.shader.TriangleShaderVBO
 
 class GlesRender(private val render:String): BaseRender() {
-
     override fun initShader() {
         Log.e("Gles", "initShader $render")
         when (render) {

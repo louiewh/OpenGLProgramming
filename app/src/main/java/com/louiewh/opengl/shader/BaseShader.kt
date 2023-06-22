@@ -15,18 +15,24 @@ abstract class BaseShader {
 
     abstract fun onInitGLES(program: Int)
 
+    abstract fun onDestroyGLES()
+
     abstract fun getVertexSource():String
 
     abstract fun getFragmentSource():String
 
     abstract fun  onDrawFrame(gl: GL10?)
 
-
     fun initGLES20(){
         GLES20.glClearColor(1.0f, 0F, 0F, 1.0f)
 
         mProgram = createProgram(getVertexSource(), getFragmentSource())
         onInitGLES(mProgram)
+    }
+
+    fun destroyGLES(){
+        GLES20.glDeleteProgram(mProgram)
+        onDestroyGLES()
     }
 
     protected open fun getShaderProgram():Int{

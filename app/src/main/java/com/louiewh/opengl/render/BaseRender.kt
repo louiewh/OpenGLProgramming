@@ -1,6 +1,5 @@
 package com.louiewh.opengl.render
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import com.louiewh.opengl.shader.BaseShader
@@ -32,5 +31,9 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
 
     override fun onDrawFrame(gl: GL10?) {
         shader?.onDrawFrame(gl)
+    }
+
+    fun destroyShader(){
+        shader?.destroyGLES()
     }
 }

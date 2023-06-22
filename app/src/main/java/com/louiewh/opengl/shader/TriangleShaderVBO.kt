@@ -27,6 +27,10 @@ class TriangleShaderVBO: TriangleShader() {
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, GLES20.GL_NONE)
     }
 
+    override fun onDestroyGLES() {
+        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
+    }
+
     private fun initVBO() {
 
         val intArray = IntArray(1)

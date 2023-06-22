@@ -21,6 +21,7 @@ class FirstFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var mGlesRender:GlesRender? = null;
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,13 +45,14 @@ class FirstFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        mGlesRender?.destroyShader()
     }
 
     private fun initGLSurfaceViw(render:String?) {
         Log.e("Gles", "initGLSurfaceViw $render")
         render?.let {
             Log.e("Gles", "initGLSurfaceViw apply $render")
-            GlesRender(it).apply {
+            mGlesRender = GlesRender(it).apply {
                 this.initShader()
                 this.setGLSurfaceView(binding.glsurfaceview)
             }

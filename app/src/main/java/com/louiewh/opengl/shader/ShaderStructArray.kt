@@ -40,6 +40,11 @@ class ShaderStructArray: BaseShader() {
         initVAO()
     }
 
+    override fun onDestroyGLES() {
+        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
+    }
+
     override fun getVertexSource(): String {
         return verticesSource
     }

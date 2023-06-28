@@ -1,6 +1,7 @@
 package com.louiewh.opengl.shader
 
 import android.opengl.GLES20
+import android.opengl.GLSurfaceView
 import android.util.Log
 import javax.microedition.khronos.opengles.GL10
 
@@ -22,6 +23,10 @@ abstract class BaseShader {
     abstract fun getFragmentSource():String
 
     abstract fun  onDrawFrame(gl: GL10?)
+
+    open fun onSetGLSurfaceView(glSurfaceView:GLSurfaceView){
+
+    }
 
     fun initGLES20(){
         GLES20.glClearColor(1.0f, 0F, 0F, 1.0f)

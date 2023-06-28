@@ -1,7 +1,9 @@
 package com.louiewh.opengl.render
 
+import android.graphics.Canvas
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
+import android.view.Surface
 import com.louiewh.opengl.shader.BaseShader
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -18,7 +20,9 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
         // 设置渲染器(后面会讲，可以理解成画笔)
         glSurfaceView.setRenderer(this)
         // 设置渲染模式为连续模式(会以 60 fps 的速度刷新)
+
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
+        shader?.onSetGLSurfaceView(glSurfaceView)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {

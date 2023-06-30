@@ -9,6 +9,8 @@ import com.louiewh.opengl.shader.TriangleShaderVBO
 import com.louiewh.opengl.shader.YUVRender
 import com.louiewh.opengl.shader.YUVRenderColorReverse
 import com.louiewh.opengl.shader.YUVRenderLuma
+import com.louiewh.opengl.shader.YUVRenderSplit2
+import com.louiewh.opengl.shader.YUVRenderSplit4
 
 object GlesRenderConst {
 
@@ -20,7 +22,9 @@ object GlesRenderConst {
         "Texture2D",
         "YUVRender",
         "YUVRenderLuma",
-        "YUVRenderColorReverse"
+        "YUVRenderColorReverse",
+        "YUVRenderSplit",
+        "YUVRenderLumaSplit2"
     )
 
     fun getRender(renderName:String):BaseShader{
@@ -52,7 +56,10 @@ object GlesRenderConst {
                 shader = YUVRenderColorReverse()
             }
             renderArray[8] ->{
-
+                shader = YUVRenderSplit4()
+            }
+            renderArray[9] ->{
+                shader = YUVRenderSplit2()
             }
         }
 

@@ -9,6 +9,7 @@ object GlesRenderConst {
         "ShaderStructArray",
         "Texture2D",
         "YUVRender",
-        "YUVRenderLuma"
+        "YUVRenderLuma",
+        "YUVRenderColorReverse"
     )
 }

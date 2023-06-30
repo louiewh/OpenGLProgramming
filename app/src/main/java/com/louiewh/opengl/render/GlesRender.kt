@@ -8,6 +8,7 @@ import com.louiewh.opengl.shader.TriangleShader
 import com.louiewh.opengl.shader.TriangleShaderVAO
 import com.louiewh.opengl.shader.TriangleShaderVBO
 import com.louiewh.opengl.shader.YUVRender
+import com.louiewh.opengl.shader.YUVRenderColorReverse
 import com.louiewh.opengl.shader.YUVRenderLuma
 
 class GlesRender(private val render:String): BaseRender() {
@@ -34,6 +35,12 @@ class GlesRender(private val render:String): BaseRender() {
             }
             GlesRenderConst.renderArray[6] ->{
                 shader = YUVRenderLuma()
+            }
+            GlesRenderConst.renderArray[7] ->{
+                shader = YUVRenderColorReverse()
+            }
+            GlesRenderConst.renderArray[8] ->{
+
             }
 
             null -> {

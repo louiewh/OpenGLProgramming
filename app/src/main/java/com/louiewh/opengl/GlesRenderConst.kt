@@ -1,6 +1,7 @@
 package com.louiewh.opengl
 
 import com.louiewh.opengl.shader.BaseShader
+import com.louiewh.opengl.shader.ShaderOrthoMatrix
 import com.louiewh.opengl.shader.ShaderStructArray
 import com.louiewh.opengl.shader.Texture2DRender
 import com.louiewh.opengl.shader.TriangleShader
@@ -24,7 +25,8 @@ object GlesRenderConst {
         "YUVRenderLuma",
         "YUVRenderColorReverse",
         "YUVRenderSplit",
-        "YUVRenderLumaSplit2"
+        "YUVRenderLumaSplit2",
+        "ShaderOrthoMatrix"
     )
 
     fun getRender(renderName:String):BaseShader{
@@ -60,6 +62,9 @@ object GlesRenderConst {
             }
             renderArray[9] ->{
                 shader = YUVRenderSplit2()
+            }
+            renderArray[10] ->{
+                shader = ShaderOrthoMatrix()
             }
         }
 

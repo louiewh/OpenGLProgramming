@@ -16,7 +16,7 @@ import kotlin.concurrent.thread
  * ffmpeg 生成 YUV 数据  ffmpeg -i 1638871887691778.mp4  -s 568x320 -r 30 -pix_fmt yuv420p out.yuv
  * ffmpeg 播放 YUV 数据 ffplay -video_size 568x320  -i out.yuv
  */
-class YUVRender :BaseShader() {
+open class YUVRender :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0

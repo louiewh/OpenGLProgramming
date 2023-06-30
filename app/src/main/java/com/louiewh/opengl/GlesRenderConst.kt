@@ -8,6 +8,7 @@ object GlesRenderConst {
         "TriangleShaderVAO",
         "ShaderStructArray",
         "Texture2D",
-        "YUVRender"
+        "YUVRender",
+        "YUVRenderLuma"
     )
 }

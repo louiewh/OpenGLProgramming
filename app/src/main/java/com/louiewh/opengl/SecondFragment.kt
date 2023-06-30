@@ -34,7 +34,7 @@ class SecondFragment : Fragment() {
 
         binding.buttonSecond.setOnClickListener {
             val bundle = Bundle()
-            bundle.putString("Render", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
+            bundle.putString("RenderName", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
             findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
         }
 

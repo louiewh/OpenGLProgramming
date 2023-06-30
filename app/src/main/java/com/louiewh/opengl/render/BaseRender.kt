@@ -1,16 +1,14 @@
 package com.louiewh.opengl.render
 
-import android.graphics.Canvas
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
-import android.view.Surface
 import com.louiewh.opengl.shader.BaseShader
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 abstract class BaseRender:GLSurfaceView.Renderer  {
 
-    protected var shader:BaseShader? = null
+    protected var baseShader:BaseShader? = null
 
     abstract fun initShader()
 
@@ -22,11 +20,11 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
         // 设置渲染模式为连续模式(会以 60 fps 的速度刷新)
 
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
-        shader?.onSetGLSurfaceView(glSurfaceView)
+        baseShader?.onSetGLSurfaceView(glSurfaceView)
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        shader?.initGLES20()
+        baseShader?.initGLES20()
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -34,10 +32,10 @@ abstract class BaseRender:GLSurfaceView.Renderer  {
     }
 
     override fun onDrawFrame(gl: GL10?) {
-        shader?.onDrawFrame(gl)
+        baseShader?.onDrawFrame(gl)
     }
 
     fun destroyShader(){
-        shader?.destroyGLES()
+        baseShader?.destroyGLES()
     }
 }

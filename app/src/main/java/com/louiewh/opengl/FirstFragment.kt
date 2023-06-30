@@ -38,8 +38,8 @@ class FirstFragment : Fragment() {
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
-        val render = arguments?.getString("Render")
-        initGLSurfaceViw(render)
+        val renderName = arguments?.getString("RenderName")
+        initGLSurfaceViw(renderName)
     }
 
     override fun onDestroyView() {
@@ -48,10 +48,10 @@ class FirstFragment : Fragment() {
         mGlesRender?.destroyShader()
     }
 
-    private fun initGLSurfaceViw(render:String?) {
-        Log.e("Gles", "initGLSurfaceViw $render")
-        render?.let {
-            Log.e("Gles", "initGLSurfaceViw apply $render")
+    private fun initGLSurfaceViw(renderName:String?) {
+        Log.e("Gles", "initGLSurfaceViw $renderName")
+        renderName?.let {
+            Log.e("Gles", "initGLSurfaceViw apply $renderName")
             mGlesRender = GlesRender(it).apply {
                 this.initShader()
                 this.setGLSurfaceView(binding.glsurfaceview)

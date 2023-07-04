@@ -52,27 +52,58 @@ open class YUVRender :BaseShader() {
 
 
     private  val fragmentSource =
-        "#version 300 es\n" +
-            "out vec4 FragColor;\n" +
-            "in vec2  textureCoord;\n" +
-            "\n" +
-            "uniform sampler2D textureY;\n" +
-            "uniform sampler2D textureU;\n" +
-            "uniform sampler2D textureV;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "    float y,u,v;\n" +
-            "    vec3 rgb;\n" +
-            "    y = texture(textureY, textureCoord).r;\n" +
-            "    u = texture(textureU, textureCoord).g - 0.5;\n" +
-            "    v = texture(textureV, textureCoord).b - 0.5;\n" +
-            "    rgb.r = y + 1.540*v;\n" +
-            "    rgb.g = y - 0.183*u - 0.459*v;\n" +
-            "    rgb.b = y + 1.818*u;\n" +
-            "    FragColor = vec4(rgb, 1.0);\n" +
-            "}"
+        """
+            #version 300 es
+            out vec4 FragColor;
+            in vec2  textureCoord;
 
+            uniform sampler2D textureY;
+            uniform sampler2D textureU;
+            uniform sampler2D textureV;
+
+            void main(){
+                float y,u,v;
+                vec3 rgb;
+                y = texture(textureY, textureCoord).r;
+                u = texture(textureU, textureCoord).r - 0.5;
+                v = texture(textureV, textureCoord).r - 0.5;
+                
+                vec3 rgbMat = mat3(
+                1.0,    1.0,     1.0,					
+                0.0,    -0.344,  1.770,					
+                1.403,  -0.714,  0.0) * yuv; 
+
+                rgb.r = y + 1.540*v;
+                rgb.g = y - 0.183*u - 0.459*v;
+                rgb.b = y + 1.818*u;
+                FragColor = vec4(rgb, 1.0);
+            }
+            """
+
+    private  val fragmentSourceMat =
+        """
+            #version 300 es
+            out vec4 FragColor;
+            in vec2  textureCoord;
+
+            uniform sampler2D textureY;
+            uniform sampler2D textureU;
+            uniform sampler2D textureV;
+
+            void main(){
+                vec3 yuv;
+                yuv.x = texture(textureY, textureCoord).r;
+                yuv.y = texture(textureU, textureCoord).r - 0.5;
+                yuv.z = texture(textureV, textureCoord).r - 0.5;
+                
+                vec3 rgb = mat3(
+                1.0,    1.0,     1.0,					
+                0.0,    -0.344,  1.770,					
+                1.403,  -0.714,  0.0) * yuv; 
+
+                FragColor = vec4(rgb, 1.0);
+            }
+            """
 
     private var vPosition = 0
     private var vTexCoord = 0
@@ -124,7 +155,7 @@ open class YUVRender :BaseShader() {
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSource
+        return fragmentSourceMat
     }
 
     override fun onDrawFrame(gl: GL10?) {

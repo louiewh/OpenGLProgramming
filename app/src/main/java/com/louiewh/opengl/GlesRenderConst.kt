@@ -2,7 +2,10 @@ package com.louiewh.opengl
 
 import com.louiewh.opengl.shader.BaseShader
 import com.louiewh.opengl.shader.ShaderOrthoMatrix
+import com.louiewh.opengl.shader.ShaderRotateMatrix
+import com.louiewh.opengl.shader.ShaderScaleMatrix
 import com.louiewh.opengl.shader.ShaderStructArray
+import com.louiewh.opengl.shader.ShaderTranslateMatrix
 import com.louiewh.opengl.shader.Texture2DRender
 import com.louiewh.opengl.shader.TriangleShader
 import com.louiewh.opengl.shader.TriangleShaderVAO
@@ -26,7 +29,10 @@ object GlesRenderConst {
         "YUVRenderColorReverse",
         "YUVRenderSplit",
         "YUVRenderLumaSplit2",
-        "ShaderOrthoMatrix"
+        "ShaderOrthoMatrix",
+        "ShaderScaleMatrix",
+        "ShaderTranslateMatrix",
+        "ShaderRotateMatrix"
     )
 
     fun getRender(renderName:String):BaseShader{
@@ -65,6 +71,15 @@ object GlesRenderConst {
             }
             renderArray[10] ->{
                 shader = ShaderOrthoMatrix()
+            }
+            renderArray[11] ->{
+                shader = ShaderScaleMatrix()
+            }
+            renderArray[12] ->{
+                shader = ShaderTranslateMatrix()
+            }
+            renderArray[13] ->{
+                shader = ShaderRotateMatrix()
             }
         }
 

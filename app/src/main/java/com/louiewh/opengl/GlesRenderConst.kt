@@ -8,6 +8,7 @@ import com.louiewh.opengl.shader.ShaderStructArray
 import com.louiewh.opengl.shader.ShaderTranslateMatrix
 import com.louiewh.opengl.shader.Texture2DRender
 import com.louiewh.opengl.shader.Texture3DClubRender
+import com.louiewh.opengl.shader.Texture3DMutiClubRender
 import com.louiewh.opengl.shader.Texture3DRender
 import com.louiewh.opengl.shader.TriangleShader
 import com.louiewh.opengl.shader.TriangleShaderVAO
@@ -36,7 +37,8 @@ object GlesRenderConst {
         "ShaderTranslateMatrix",
         "ShaderRotateMatrix",
         "Texture3DRender",
-        "Texture3DClubRender"
+        "Texture3DClubRender",
+        "Texture3DMutiClubRender"
     )
 
     fun getRender(renderName:String):BaseShader{
@@ -90,6 +92,9 @@ object GlesRenderConst {
             }
             renderArray[15] ->{
                 shader = Texture3DClubRender()
+            }
+            renderArray[16] ->{
+                shader = Texture3DMutiClubRender()
             }
         }
 

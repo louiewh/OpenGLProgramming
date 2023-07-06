@@ -78,6 +78,8 @@ class Texture3DClubRender :BaseShader() {
         vSampler2D = GLES30.glGetUniformLocation(program, "ourTexture")
         uMatrix   = GLES20.glGetUniformLocation(program, "uMatrix")
 
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+
         Log.e("Gles", "onInitGLES ->vPosition: $vPosition vColor: $vColor vTexCoord: $vTexCoord")
 
         initVBO()
@@ -94,6 +96,7 @@ class Texture3DClubRender :BaseShader() {
         } else {
             height.toFloat() / width
         }
+
         Matrix.rotateM(modelMatrix,0,-55f,1f,0f,0f)
         Matrix.translateM(viewMatrix,0,0f,0f,-3f)
         Matrix.perspectiveM(projectionMatrix,0,45f, aspectRatio,0.1f,100f)
@@ -146,8 +149,9 @@ class Texture3DClubRender :BaseShader() {
         Matrix.rotateM(modelMatrix, 0, angle, 0.5f, 1.0f, 0f)
         //设置 V
         Matrix.translateM(viewMatrix, 0, 0f, 0f, -4f)
-
+        //设置 P
         Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.3f, 100f)
+
         Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0)
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
     }

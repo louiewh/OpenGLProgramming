@@ -4,7 +4,7 @@ import android.opengl.GLES30
 import android.opengl.Matrix
 import javax.microedition.khronos.opengles.GL10
 
-class ShaderScaleMatrix: ShaderMatrix() {
+class ShaderScaleMatrix: ShaderOrthoMatrix() {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
 

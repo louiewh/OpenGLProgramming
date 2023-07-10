@@ -8,10 +8,10 @@ import android.opengl.GLES30
 import android.util.Log
 import com.louiewh.opengl.ContextUtil
 import com.louiewh.opengl.R
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
 import javax.microedition.khronos.opengles.GL10
 
 /**
@@ -20,42 +20,43 @@ import javax.microedition.khronos.opengles.GL10
  * 3. 图片反转问题， 修改纹理坐标
  */
 
-class Texture2DRender :BaseShader() {
+open class Texture2DRender :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0
     private var  mTextureId = 0
 
-    private  val verticesSource =
-        "#version 300 es\n" +
-                "layout (location = 0) in vec3 aPos;\n" +
-                "layout (location = 1) in vec3 aColor;\n" +
-                "layout (location = 2) in vec2 aTexCoord;\n" +
-                "\n" +
-                "out vec3 ourColor;\n" +
-                "out vec2 TexCoord;\n" +
-                "\n" +
-                "void main()\n" +
-                "{\n" +
-                "    gl_Position = vec4(aPos, 1.0);\n" +
-                "    ourColor = aColor;\n" +
-                "    TexCoord = aTexCoord;\n" +
-                "}"
+    private val verticesSource =
+        """#version 300 es
+                layout (location = 0) in vec3 aPos; 
+                layout (location = 1) in vec3 aColor; 
+                layout (location = 2) in vec2 aTexCoord; 
+            
+                out vec3 ourColor; 
+                out vec2 TexCoord; 
+                uniform mat4 uMatrix;                
+
+                void main() 
+                { 
+                    gl_Position = vec4(aPos, 1.0); 
+                    ourColor = aColor; 
+                    TexCoord = aTexCoord; 
+                }"""
 
 
-    private  val fragmentSource =
-        "#version 300 es\n" +
-            "out vec4 FragColor;\n" +
-            "\n" +
-            "in vec3 ourColor;\n" +
-            "in vec2 TexCoord;\n" +
-            "\n" +
-            "uniform sampler2D ourTexture;\n" +
-            "\n" +
-            "void main()\n" +
-            "{\n" +
-            "    FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n" +
-            "}"
+    private val fragmentSource =
+        """#version 300 es
+            out vec4 FragColor; 
+
+            in vec3 ourColor; 
+            in vec2 TexCoord; 
+
+            uniform sampler2D ourTexture; 
+             
+            void main() 
+            { 
+                FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0); 
+            }"""
 
     private var vPosition = 0
     private var vColor = 0
@@ -74,6 +75,7 @@ class Texture2DRender :BaseShader() {
         initEBO()
         initVAO()
         initTexture()
+        GLES30.glUseProgram(getShaderProgram())
     }
 
     override fun onDestroyGLES() {
@@ -93,7 +95,6 @@ class Texture2DRender :BaseShader() {
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
-        GLES30.glUseProgram(getShaderProgram())
 
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
         GLES30.glBindVertexArray(VAO)
@@ -179,7 +180,7 @@ class Texture2DRender :BaseShader() {
         return vertexBuffer
     }
 
-    private fun getIndex(): IntBuffer {
+    private fun getIndex(): Buffer {
         val indices = intArrayOf(
             // 注意索引从0开始!
             // 此例的索引(0,1,2,3)就是顶点数组vertices的下标，
@@ -193,7 +194,7 @@ class Texture2DRender :BaseShader() {
             .order(ByteOrder.nativeOrder())
             .asIntBuffer()
             .put(indices)
-            .apply {
+            .run {
                 position(0)
             }
 
@@ -234,7 +235,7 @@ class Texture2DRender :BaseShader() {
     }
 
     private fun loadImageData(context:Context): Bitmap {
-        return BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
+        return BitmapFactory.decodeResource(context.resources, R.drawable.rose)
     }
 
     private fun getBitmapPixels(bitmap:Bitmap):ByteBuffer{

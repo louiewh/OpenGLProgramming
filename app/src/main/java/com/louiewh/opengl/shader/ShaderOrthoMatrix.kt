@@ -5,6 +5,9 @@ import android.opengl.Matrix
 import javax.microedition.khronos.opengles.GL10
 
 open class ShaderOrthoMatrix: ShaderMatrix() {
+
+    protected val mvpMatrix = getUnitMatrix()
+
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
 
@@ -32,4 +35,11 @@ open class ShaderOrthoMatrix: ShaderMatrix() {
         //更新 matrix 的值，即把 UnitMatrix 值，更新到 uMatrix 这个索引
         GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
     }
+
+    private fun getUnitMatrix() =  floatArrayOf(
+        1f, 0f, 0f, 0f,
+        0f, 1f, 0f, 0f,
+        0f, 0f, 1f, 0f,
+        0f, 0f, 0f, 1f
+    )
 }

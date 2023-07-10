@@ -33,9 +33,7 @@ class SecondFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonSecond.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("RenderName", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
-            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
+            gotoRenderView()
         }
 
         renderAdapter =  RenderAdapter(this.requireContext(), GlesRenderConst.renderArray)
@@ -46,6 +44,12 @@ class SecondFragment : Fragment() {
             }
         })
         binding.recycleView.adapter = renderAdapter
+    }
+
+    private fun gotoRenderView() {
+        val bundle = Bundle()
+        bundle.putString("RenderName", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
+        findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
     }
 
     override fun onDestroyView() {

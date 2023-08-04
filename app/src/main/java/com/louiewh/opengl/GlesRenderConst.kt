@@ -38,7 +38,8 @@ object GlesRenderConst {
         "ShaderRotateMatrix",
         "Texture3DRender",
         "Texture3DClubRender",
-        "Texture3DMutiClubRender"
+        "Texture3DMutiClubRender",
+        "GlesSurfaceView",
     )
 
     fun getRender(renderName:String):BaseShader{
@@ -95,6 +96,9 @@ object GlesRenderConst {
             }
             renderArray[16] ->{
                 shader = Texture3DMutiClubRender()
+            }
+            "GlesSurfaceView" ->{
+                shader = ShaderStructArray()
             }
         }
 

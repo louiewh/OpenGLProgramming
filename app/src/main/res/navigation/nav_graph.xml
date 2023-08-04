@@ -23,5 +23,18 @@
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_GlesFragment"
+            app:destination="@id/GlesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/GlesFragment"
+        android:name="com.louiewh.opengl.GlesFragment"
+        android:label="@string/Gles_fragment_label"
+        tools:layout="@layout/fragment_gles">
+
+        <action
+            android:id="@+id/action_GlesFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
     </fragment>
 </navigation>

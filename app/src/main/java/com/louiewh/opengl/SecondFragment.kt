@@ -1,6 +1,7 @@
 package com.louiewh.opengl
 
 import android.os.Bundle
+import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -49,7 +50,11 @@ class SecondFragment : Fragment() {
     private fun gotoRenderView() {
         val bundle = Bundle()
         bundle.putString("RenderName", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
-        findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
+        if(TextUtils.equals("GlesSurfaceView", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])){
+            findNavController().navigate(R.id.action_SecondFragment_to_GlesFragment, bundle)
+        } else {
+            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
+        }
     }
 
     override fun onDestroyView() {

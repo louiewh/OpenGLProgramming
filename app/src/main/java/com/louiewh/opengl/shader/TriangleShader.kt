@@ -1,6 +1,6 @@
 package com.louiewh.opengl.shader
 
-import android.opengl.GLES20
+import android.opengl.GLES30
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -11,22 +11,9 @@ open class TriangleShader: BaseShader() {
     protected var vPosition = 0
     protected var uColor = 0
 
-    private  val verticesSource =
-        "attribute vec2 vPosition;            \n" +
-                "void main(){                         \n" +
-                "gl_Position = vec4(vPosition,0,1);\n" +
-                "}"
-
-    private  val fragmentSource =
-        "precision mediump float;         \n" +
-                "uniform vec4 uColor;             \n" +
-                "void main(){                     \n" +
-                "gl_FragColor = uColor;        \n"    +
-                "}"
-
     override fun onInitGLES(program: Int) {
-        vPosition = GLES20.glGetAttribLocation(program, "vPosition")
-        uColor = GLES20.glGetUniformLocation(program, "uColor")
+        vPosition = GLES30.glGetAttribLocation(program, "vPosition")
+        uColor = GLES30.glGetUniformLocation(program, "uColor")
     }
 
     override fun onDestroyGLES() {
@@ -34,23 +21,23 @@ open class TriangleShader: BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return verticesSource
+        return readGlslSource("TriangleShader.vert")
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSource
+        return readGlslSource( "TriangleShader.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
         val vertices = getVertices()
-        GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT or GLES20.GL_COLOR_BUFFER_BIT)
-        GLES20.glUseProgram(getShaderProgram())
+        GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
+        GLES30.glUseProgram(getShaderProgram())
 
-        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertices)
-        GLES20.glEnableVertexAttribArray(vPosition)
+        GLES30.glVertexAttribPointer(vPosition, 2, GLES30.GL_FLOAT, false, 8, vertices)
+        GLES30.glEnableVertexAttribArray(vPosition)
 
-        GLES20.glUniform4f(uColor, 0.0f, 1.0f, 0.0f, 1.0f)
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 3)
+        GLES30.glUniform4f(uColor, 0.0f, 1.0f, 0.0f, 1.0f)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 3)
     }
 
     open fun getVertices(): FloatBuffer {

@@ -1,9 +1,8 @@
 package com.louiewh.opengl.shader
 
-import android.opengl.GLES20
-import android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER
-import android.opengl.GLES20.GL_STATIC_DRAW
 import android.opengl.GLES30
+import android.opengl.GLES30.GL_ELEMENT_ARRAY_BUFFER
+import android.opengl.GLES30.GL_STATIC_DRAW
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -46,7 +45,7 @@ class TriangleShaderVAO: TriangleShader() {
         if (timeValue - mCurrentTime > 100) {
             mCurrentTime = timeValue
             mGreenValue = (sin(timeValue.toDouble()) / 2 + 0.5f).toFloat()
-            GLES20.glUniform4f(uColor, 0.0f, mGreenValue, 0.0f, 1.0f)
+            GLES30.glUniform4f(uColor, 0.0f, mGreenValue, 0.0f, 1.0f)
             // Log.e("GLES", "greenVale: $mGreenValue")
         }
     }
@@ -119,9 +118,9 @@ class TriangleShaderVAO: TriangleShader() {
     }
 
     override fun onDestroyGLES() {
-        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
     }
 
     private fun getIndex():IntBuffer{

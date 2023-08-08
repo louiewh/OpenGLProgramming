@@ -1,6 +1,5 @@
 package com.louiewh.opengl.shader
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -14,43 +13,27 @@ class ShaderStructArray: BaseShader() {
 
     private var VBO = 0
     private var VAO = 0
-
-    private  val verticesSource =
-        "attribute vec3 vPosition;                      \n" +
-                "attribute  vec3 inColor;               \n" +
-                "varying vec4 outColor;                 \n" +
-                "void main(){                           \n" +
-                "gl_Position = vec4(vPosition, 1.0);    \n" +
-                "outColor    = vec4(inColor, 1.0);      \n" +
-                "}"
-
-    private  val fragmentSource =
-        "precision mediump float;                       \n" +
-                "varying vec4 outColor;                 \n" +
-                "void main(){                           \n" +
-                "gl_FragColor = outColor;               \n" +
-                "}"
-
+    
 
     override fun onInitGLES(program: Int) {
-        vPosition = GLES20.glGetAttribLocation(program, "vPosition")
-        inColor = GLES20.glGetAttribLocation(program, "inColor")
+        vPosition = GLES30.glGetAttribLocation(program, "vPosition")
+        inColor = GLES30.glGetAttribLocation(program, "inColor")
 
         initVBO()
         initVAO()
     }
 
     override fun onDestroyGLES() {
-        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
     }
 
     override fun getVertexSource(): String {
-        return verticesSource
+        return readGlslSource("ShaderStructArray.vert")
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSource
+        return readGlslSource("ShaderStructArray.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {

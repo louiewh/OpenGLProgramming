@@ -3,7 +3,6 @@ package com.louiewh.opengl.shader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.util.Log
 import com.louiewh.opengl.ContextUtil
@@ -26,38 +25,6 @@ open class Texture2DRender :BaseShader() {
     private var EBO = 0
     private var  mTextureId = 0
 
-    private val verticesSource =
-        """#version 300 es
-                layout (location = 0) in vec3 aPos; 
-                layout (location = 1) in vec3 aColor; 
-                layout (location = 2) in vec2 aTexCoord; 
-            
-                out vec3 ourColor; 
-                out vec2 TexCoord; 
-                uniform mat4 uMatrix;                
-
-                void main() 
-                { 
-                    gl_Position = vec4(aPos, 1.0); 
-                    ourColor = aColor; 
-                    TexCoord = aTexCoord; 
-                }"""
-
-
-    private val fragmentSource =
-        """#version 300 es
-            out vec4 FragColor; 
-
-            in vec3 ourColor; 
-            in vec2 TexCoord; 
-
-            uniform sampler2D ourTexture; 
-             
-            void main() 
-            { 
-                FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0); 
-            }"""
-
     private var vPosition = 0
     private var vColor = 0
     private var vTexCoord = 0
@@ -79,18 +46,18 @@ open class Texture2DRender :BaseShader() {
     }
 
     override fun onDestroyGLES() {
-        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
-        GLES20.glDeleteTextures(1, IntArray(mTextureId), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES30.glDeleteTextures(1, IntArray(mTextureId), 0)
     }
 
     override fun getVertexSource(): String {
-        return verticesSource
+        return readGlslSource("Texture2DRender.vert")
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSource
+        return readGlslSource("Texture2DRender.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -123,12 +90,12 @@ open class Texture2DRender :BaseShader() {
         GLES30.glGenBuffers(intArray.size, intArray, 0)
         EBO = intArray[0]
 
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
         GLES30.glBufferData(
-            GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
-            GLES20.GL_STATIC_DRAW
+            GLES30.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
+            GLES30.GL_STATIC_DRAW
         )
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
     }
 
     private fun initVAO() {

@@ -1,6 +1,5 @@
 package com.louiewh.opengl.shader
 
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.GLSurfaceView
 import android.util.Log
@@ -36,74 +35,6 @@ open class YUVRender :BaseShader() {
     private var mStop = false
     private lateinit var ioThread:Thread
     private lateinit var glSurfaceView:GLSurfaceView
-
-    private  val verticesSource =
-        "#version 300 es\n" +
-                "layout (location = 0) in vec3 aPos;\n" +
-                "layout (location = 1) in vec2 aTexCoord;\n" +
-                "\n" +
-                "out vec2 textureCoord;\n" +
-                "\n" +
-                "void main()\n" +
-                "{\n" +
-                "    gl_Position = vec4(aPos, 1.0);\n" +
-                "    textureCoord = aTexCoord;\n" +
-                "}"
-
-
-    private  val fragmentSource =
-        """
-            #version 300 es
-            out vec4 FragColor;
-            in vec2  textureCoord;
-
-            uniform sampler2D textureY;
-            uniform sampler2D textureU;
-            uniform sampler2D textureV;
-
-            void main(){
-                float y,u,v;
-                vec3 rgb;
-                y = texture(textureY, textureCoord).r;
-                u = texture(textureU, textureCoord).r - 0.5;
-                v = texture(textureV, textureCoord).r - 0.5;
-                
-                vec3 rgbMat = mat3(
-                1.0,    1.0,     1.0,					
-                0.0,    -0.344,  1.770,					
-                1.403,  -0.714,  0.0) * yuv; 
-
-                rgb.r = y + 1.540*v;
-                rgb.g = y - 0.183*u - 0.459*v;
-                rgb.b = y + 1.818*u;
-                FragColor = vec4(rgb, 1.0);
-            }
-            """
-
-    private  val fragmentSourceMat =
-        """
-            #version 300 es
-            out vec4 FragColor;
-            in vec2  textureCoord;
-
-            uniform sampler2D textureY;
-            uniform sampler2D textureU;
-            uniform sampler2D textureV;
-
-            void main(){
-                vec3 yuv;
-                yuv.x = texture(textureY, textureCoord).r;
-                yuv.y = texture(textureU, textureCoord).r - 0.5;
-                yuv.z = texture(textureV, textureCoord).r - 0.5;
-                
-                vec3 rgb = mat3(
-                1.0,    1.0,     1.0,					
-                0.0,    -0.344,  1.770,					
-                1.403,  -0.714,  0.0) * yuv; 
-
-                FragColor = vec4(rgb, 1.0);
-            }
-            """
 
     private var vPosition = 0
     private var vTexCoord = 0
@@ -141,21 +72,21 @@ open class YUVRender :BaseShader() {
     override fun onDestroyGLES() {
         mStop = true
 
-        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
 
-        GLES20.glDeleteTextures(1, IntArray(yTextureId), 0)
-        GLES20.glDeleteTextures(1, IntArray(uTextureId), 0)
-        GLES20.glDeleteTextures(1, IntArray(vTextureId), 0)
+        GLES30.glDeleteTextures(1, IntArray(yTextureId), 0)
+        GLES30.glDeleteTextures(1, IntArray(uTextureId), 0)
+        GLES30.glDeleteTextures(1, IntArray(vTextureId), 0)
     }
 
     override fun getVertexSource(): String {
-        return verticesSource
+        return readGlslSource("YUVRender.vert")
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSourceMat
+        return readGlslSource("YUVRender.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -240,12 +171,12 @@ open class YUVRender :BaseShader() {
         GLES30.glGenBuffers(intArray.size, intArray, 0)
         EBO = intArray[0]
 
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
         GLES30.glBufferData(
-            GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
-            GLES20.GL_STATIC_DRAW
+            GLES30.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
+            GLES30.GL_STATIC_DRAW
         )
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
     }
 
     private fun initVAO() {

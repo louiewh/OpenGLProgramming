@@ -3,7 +3,6 @@ package com.louiewh.opengl.shader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES20
 import android.opengl.GLES30
 import android.opengl.Matrix
 import android.util.Log
@@ -24,38 +23,6 @@ class Texture3DRender :BaseShader() {
     private var EBO = 0
     private var  mTextureId = 0
 
-    private  val verticesSource =
-        """#version 300 es
-                layout (location = 0) in vec3 aPos;
-                layout (location = 1) in vec3 aColor;
-                layout (location = 2) in vec2 aTexCoord;
-
-                out vec3 ourColor;
-                out vec2 TexCoord;
-                uniform mat4 uMatrix;
-                
-                void main()
-                {
-                    gl_Position = uMatrix * vec4(aPos, 1.0);
-                    ourColor = aColor;
-                    TexCoord = aTexCoord;
-                }"""
-
-
-    private  val fragmentSource =
-        """#version 300 es
-            out vec4 FragColor;
-            in vec3 ourColor;
-            in vec2 TexCoord;
-
-            uniform sampler2D ourTexture;
-
-            void main()
-            {
-                FragColor = texture(ourTexture, TexCoord);
-            }
-            """
-
     private var vPosition = 0
     private var vColor = 0
     private var vTexCoord = 0
@@ -68,7 +35,7 @@ class Texture3DRender :BaseShader() {
         vColor     = GLES30.glGetAttribLocation(program, "aColor")
         vTexCoord  = GLES30.glGetAttribLocation(program, "aTexCoord")
         vSampler2D = GLES30.glGetUniformLocation(program, "ourTexture")
-        uMatrix   = GLES20.glGetUniformLocation(program, "uMatrix")
+        uMatrix   = GLES30.glGetUniformLocation(program, "uMatrix")
 
         Log.e("Gles", "onInitGLES ->vPosition: $vPosition vColor: $vColor vTexCoord: $vTexCoord")
 
@@ -104,18 +71,18 @@ class Texture3DRender :BaseShader() {
     }
 
     override fun onDestroyGLES() {
-        GLES20.glDeleteBuffers(1, IntArray(VAO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(VBO), 0)
-        GLES20.glDeleteBuffers(1, IntArray(EBO), 0)
-        GLES20.glDeleteTextures(1, IntArray(mTextureId), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES30.glDeleteTextures(1, IntArray(mTextureId), 0)
     }
 
     override fun getVertexSource(): String {
-        return verticesSource
+        return readGlslSource("Texture3DRender.vert")
     }
 
     override fun getFragmentSource(): String {
-        return fragmentSource
+        return readGlslSource("Texture3DRender.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -155,12 +122,12 @@ class Texture3DRender :BaseShader() {
         GLES30.glGenBuffers(intArray.size, intArray, 0)
         EBO = intArray[0]
 
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
         GLES30.glBufferData(
-            GLES20.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
-            GLES20.GL_STATIC_DRAW
+            GLES30.GL_ELEMENT_ARRAY_BUFFER, indices.capacity()* Int.SIZE_BYTES, indices,
+            GLES30.GL_STATIC_DRAW
         )
-        GLES30.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, GLES30.GL_NONE)
     }
 
     private fun initVAO() {

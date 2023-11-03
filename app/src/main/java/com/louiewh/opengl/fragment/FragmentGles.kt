@@ -1,4 +1,4 @@
-package com.louiewh.opengl
+package com.louiewh.opengl.fragment
 
 import android.os.Bundle
 import android.util.Log
@@ -7,36 +7,33 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.louiewh.opengl.databinding.FragmentFirstBinding
+import com.louiewh.opengl.R
+import com.louiewh.opengl.databinding.FragmentGlesBinding
 import com.louiewh.opengl.render.GlesRender
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
-class FirstFragment : Fragment() {
+class FragmentGles: Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private var _binding: FragmentGlesBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private var mGlesRender:GlesRender? = null;
+    private var mGlesRender: GlesRender? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentGlesBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            findNavController().navigate(R.id.action_global_FragmentShaderList)
         }
         val renderName = arguments?.getString("RenderName")
         initGLSurfaceViw(renderName)
@@ -45,7 +42,8 @@ class FirstFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        mGlesRender?.destroyShader()
+        // TODO
+//        mGlesRender?.destroyShader()
     }
 
     private fun initGLSurfaceViw(renderName:String?) {
@@ -54,7 +52,7 @@ class FirstFragment : Fragment() {
             Log.e("Gles", "initGLSurfaceViw apply $renderName")
             mGlesRender = GlesRender(it).apply {
                 this.initShader()
-                this.setGLSurfaceView(binding.glsurfaceview)
+                this.setGlesSurfaceView(binding.glsurfaceview)
             }
         }
     }

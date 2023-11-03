@@ -17,7 +17,7 @@ import javax.microedition.khronos.opengles.GL10
 /**
  *
  */
-class Texture3DRender :BaseShader() {
+class Texture3DMutiClubShader :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0
@@ -30,6 +30,21 @@ class Texture3DRender :BaseShader() {
 
     private var uMatrix = 0;
 
+    private val modelMatrix = getUnitMatrix()
+    private val viewMatrix = getUnitMatrix()
+    private val projectionMatrix = getUnitMatrix()
+    private val mvpMatrix = getUnitMatrix()
+
+    private var aspectRatio = 1.0f
+    private var angle = -55f
+
+    var mulPosition = floatArrayOf(
+        0.0f, 0.0f, 0.0f,
+        1.2f, 1.2f, -1.0f,
+        -1.5f, -1.3f, -2.5f,
+        -1.3f, 1.3f, -1.5f
+    )
+
     override fun onInitGLES(program: Int) {
         vPosition  = GLES30.glGetAttribLocation(program, "aPos")
         vColor     = GLES30.glGetAttribLocation(program, "aColor")
@@ -37,10 +52,12 @@ class Texture3DRender :BaseShader() {
         vSampler2D = GLES30.glGetUniformLocation(program, "ourTexture")
         uMatrix   = GLES30.glGetUniformLocation(program, "uMatrix")
 
+        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
+
         Log.e("Gles", "onInitGLES ->vPosition: $vPosition vColor: $vColor vTexCoord: $vTexCoord")
 
         initVBO()
-        initEBO()
+        // initEBO()
         initVAO()
         initTexture()
     }
@@ -48,16 +65,11 @@ class Texture3DRender :BaseShader() {
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
 
-        val aspectRatio = if (width > height) {
+        aspectRatio = if (width > height) {
             width.toFloat() / height
         } else {
             height.toFloat() / width
         }
-
-        val modelMatrix = getUnitMatrix()
-        val viewMatrix = getUnitMatrix()
-        val projectionMatrix = getUnitMatrix()
-        val mvpMatrix = getUnitMatrix()
 
         Matrix.rotateM(modelMatrix,0,-55f,1f,0f,0f)
         Matrix.translateM(viewMatrix,0,0f,0f,-3f)
@@ -73,27 +85,62 @@ class Texture3DRender :BaseShader() {
     override fun onDestroyGLES() {
         GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
         GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
-        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
+        // GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
         GLES30.glDeleteTextures(1, IntArray(mTextureId), 0)
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture3DRender.vert")
+        return readGlslSource("Texture3DMutiClubShader.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture3DRender.frag")
+        return readGlslSource("Texture3DMutiClubShader.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
-        GLES30.glBindVertexArray(VAO)
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
+        for (i in 0..3) {
+            setMatrix(i)
+            GLES30.glUniformMatrix4fv(uMatrix, 1, false, mvpMatrix, 0)
 
-        GLES30.glBindVertexArray(GLES30.GL_NONE)
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
+            GLES30.glBindVertexArray(VAO)
+            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+
+            GLES30.glBindVertexArray(GLES30.GL_NONE)
+            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
+        }
+    }
+
+    private fun setMatrix(index:Int) {
+        Matrix.setIdentityM(modelMatrix, 0)
+        Matrix.setIdentityM(viewMatrix, 0)
+        Matrix.setIdentityM(projectionMatrix, 0)
+        Matrix.setIdentityM(mvpMatrix, 0)
+
+        angle += 1
+        angle %= 360
+        //设置 M
+        Matrix.rotateM(modelMatrix,
+            0,
+            angle,
+            mulPosition[index * 3] + 0.5f,
+            mulPosition[index * 3 + 1] + 1.0f,
+            mulPosition[index * 3 + 2])
+
+        //设置 V
+        Matrix.translateM(viewMatrix,
+            0,
+            mulPosition[index * 3],
+            mulPosition[index * 3 + 1],
+            mulPosition[index * 3 + 2] - 4f - 3)
+
+        //设置 P
+        Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.3f, 100f)
+
+        Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0)
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
     }
 
     private fun getUnitMatrix() =  floatArrayOf(
@@ -141,11 +188,10 @@ class Texture3DRender :BaseShader() {
         // VBO bind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
         // EBO bind
-        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        // GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
 
-        GLES30.glVertexAttribPointer(vPosition, 3, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 0)
-        GLES30.glVertexAttribPointer(vColor,    3, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 3*VERTICES_FLOAT_SIZE)
-        GLES30.glVertexAttribPointer(vTexCoord, 2, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 6*VERTICES_FLOAT_SIZE)
+        GLES30.glVertexAttribPointer(vPosition, 3, GLES30.GL_FLOAT, false, 5 * VERTICES_FLOAT_SIZE, 0)
+        GLES30.glVertexAttribPointer(vTexCoord, 2, GLES30.GL_FLOAT, false, 5 * VERTICES_FLOAT_SIZE, 3*VERTICES_FLOAT_SIZE)
 
         GLES30.glEnableVertexAttribArray(vPosition)
         GLES30.glEnableVertexAttribArray(vColor)
@@ -160,11 +206,42 @@ class Texture3DRender :BaseShader() {
 
     private fun getVertices(): FloatBuffer {
         val vertices = floatArrayOf(
-            // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-            0.9f,  0.9f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
-            0.8f, -0.8f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
-            -0.8f, -0.8f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
-            -0.8f,  0.8f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+            0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f,  -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
         )
 
         // vertices.length*4是因为一个float占四个字节

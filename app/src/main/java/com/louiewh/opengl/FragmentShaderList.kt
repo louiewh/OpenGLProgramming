@@ -1,7 +1,6 @@
 package com.louiewh.opengl
 
 import android.os.Bundle
-import android.text.TextUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +11,14 @@ import com.louiewh.opengl.databinding.FragmentSecondBinding
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
-class SecondFragment : Fragment() {
+class FragmentShaderList : Fragment() {
 
     private var _binding: FragmentSecondBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    private lateinit var renderAdapter:RenderAdapter
+    private lateinit var renderAdapter: RenderAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,8 +36,8 @@ class SecondFragment : Fragment() {
             gotoRenderView()
         }
 
-        renderAdapter =  RenderAdapter(this.requireContext(), GlesRenderConst.renderArray)
-        renderAdapter.setOnItemClickListener(object :RenderAdapter.OnRenderItemClickListener{
+        renderAdapter =  RenderAdapter(this.requireContext(), GlesConst.shaderArray)
+        renderAdapter.setOnItemClickListener(object : RenderAdapter.OnRenderItemClickListener {
             override fun onRenderItemClick(view: View?, position: Int) {
                 renderAdapter.setRenderSelect(position)
                 renderAdapter.notifyDataSetChanged()
@@ -48,13 +47,8 @@ class SecondFragment : Fragment() {
     }
 
     private fun gotoRenderView() {
-        val bundle = Bundle()
-        bundle.putString("RenderName", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])
-        if(TextUtils.equals("GlesSurfaceView", GlesRenderConst.renderArray[renderAdapter.getRenderSelect()])){
-            findNavController().navigate(R.id.action_SecondFragment_to_GlesFragment, bundle)
-        } else {
-            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment, bundle)
-        }
+        val meta = GlesConst.shaderArray[renderAdapter.getRenderSelect()]
+        GlesConst.navigation(meta, findNavController())
     }
 
     override fun onDestroyView() {

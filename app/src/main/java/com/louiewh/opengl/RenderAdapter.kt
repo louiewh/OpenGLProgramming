@@ -9,7 +9,7 @@ import android.widget.RadioButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RenderAdapter(private val context:Context, private val renderArray:Array<String>) : RecyclerView.Adapter<RenderAdapter.RenderViewHolder>(){
+class RenderAdapter(private val context:Context, private val renderArray:Array<GlesConst.ShaderMeta>) : RecyclerView.Adapter<RenderAdapter.RenderViewHolder>(){
     companion object {
         private var mSelectIndex = 0
     }
@@ -39,13 +39,13 @@ class RenderAdapter(private val context:Context, private val renderArray:Array<S
     }
 
     override fun onBindViewHolder(holder: RenderViewHolder, position: Int) {
-        holder.mTitle.text = renderArray[position]
+        holder.mTitle.text = renderArray[position].renderName
         if (position == mSelectIndex) {
             holder.mRadioButton.isChecked = true
             holder.mTitle.setTextColor(context.resources.getColor(R.color.black, null))
         } else {
             holder.mRadioButton.isChecked = false
-            holder.mTitle.text = renderArray[position]
+            holder.mTitle.text = renderArray[position].renderName
             holder.mTitle.setTextColor(Color.GRAY)
         }
         holder.itemView.tag = position

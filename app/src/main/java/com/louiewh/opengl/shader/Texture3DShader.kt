@@ -4,22 +4,20 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
+import android.opengl.Matrix
 import android.util.Log
 import com.louiewh.opengl.ContextUtil
 import com.louiewh.opengl.R
-import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 import javax.microedition.khronos.opengles.GL10
 
 /**
- * 1. bitmap copy 后buf rewind
- * 2. glGenTextures and glBindTexture
- * 3. 图片反转问题， 修改纹理坐标
+ *
  */
-
-open class Texture2DRender :BaseShader() {
+class Texture3DShader :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0
@@ -30,11 +28,14 @@ open class Texture2DRender :BaseShader() {
     private var vTexCoord = 0
     private var vSampler2D = 0
 
+    private var uMatrix = 0
+
     override fun onInitGLES(program: Int) {
         vPosition  = GLES30.glGetAttribLocation(program, "aPos")
         vColor     = GLES30.glGetAttribLocation(program, "aColor")
         vTexCoord  = GLES30.glGetAttribLocation(program, "aTexCoord")
         vSampler2D = GLES30.glGetUniformLocation(program, "ourTexture")
+        uMatrix   = GLES30.glGetUniformLocation(program, "uMatrix")
 
         Log.e("Gles", "onInitGLES ->vPosition: $vPosition vColor: $vColor vTexCoord: $vTexCoord")
 
@@ -42,7 +43,32 @@ open class Texture2DRender :BaseShader() {
         initEBO()
         initVAO()
         initTexture()
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        super.onSurfaceChanged(gl, width, height)
+
+        val aspectRatio = if (width > height) {
+            width.toFloat() / height
+        } else {
+            height.toFloat() / width
+        }
+
+        val modelMatrix = getUnitMatrix()
+        val viewMatrix = getUnitMatrix()
+        val projectionMatrix = getUnitMatrix()
+        val mvpMatrix = getUnitMatrix()
+
+        // Matrix.rotateM(modelMatrix,0,-55f,1f,0f,0f)
+        Matrix.translateM(modelMatrix,0,0.0f,0f,-0.1f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 1f, 0f)
+        Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.1f, 100f)
+
+        Matrix.multiplyMM(mvpMatrix,0, viewMatrix,0, modelMatrix,0)
+        Matrix.multiplyMM(mvpMatrix,0, projectionMatrix,0, mvpMatrix,0)
+
         GLES30.glUseProgram(getShaderProgram())
+        GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
     }
 
     override fun onDestroyGLES() {
@@ -53,11 +79,11 @@ open class Texture2DRender :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture2DRender.vert")
+        return readGlslSource("Texture3DShader.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture2DRender.frag")
+        return readGlslSource("Texture3DShader.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
@@ -70,6 +96,13 @@ open class Texture2DRender :BaseShader() {
         GLES30.glBindVertexArray(GLES30.GL_NONE)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
     }
+
+    private fun getUnitMatrix() =  floatArrayOf(
+        1f, 0f, 0f, 0f,
+        0f, 1f, 0f, 0f,
+        0f, 0f, 1f, 0f,
+        0f, 0f, 0f, 1f
+    )
 
     private fun initVBO() {
         val vertices = getVertices()
@@ -129,10 +162,10 @@ open class Texture2DRender :BaseShader() {
     private fun getVertices(): FloatBuffer {
         val vertices = floatArrayOf(
             // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
-            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
-            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
-            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
+            0.2f,  0.2f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
+            0.2f, -0.2f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
+            -0.2f, -0.2f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
+            -0.2f,  0.2f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
         )
 
         // vertices.length*4是因为一个float占四个字节
@@ -147,7 +180,7 @@ open class Texture2DRender :BaseShader() {
         return vertexBuffer
     }
 
-    private fun getIndex(): Buffer {
+    private fun getIndex(): IntBuffer {
         val indices = intArrayOf(
             // 注意索引从0开始!
             // 此例的索引(0,1,2,3)就是顶点数组vertices的下标，
@@ -161,7 +194,7 @@ open class Texture2DRender :BaseShader() {
             .order(ByteOrder.nativeOrder())
             .asIntBuffer()
             .put(indices)
-            .run {
+            .apply {
                 position(0)
             }
 

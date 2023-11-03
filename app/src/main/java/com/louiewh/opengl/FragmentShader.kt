@@ -7,32 +7,36 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.louiewh.opengl.databinding.FragmentGlesBinding
+import com.louiewh.opengl.databinding.FragmentFirstBinding
 import com.louiewh.opengl.render.GlesRender
 
-class GlesFragment: Fragment() {
+/**
+ * A simple [Fragment] subclass as the default destination in the navigation.
+ */
+open class FragmentShader : Fragment() {
 
-    private var _binding: FragmentGlesBinding? = null
+    private var _binding: FragmentFirstBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private var mGlesRender: GlesRender? = null
+    private var mGlesRender:GlesRender? = null;
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
 
-        _binding = FragmentGlesBinding.inflate(inflater, container, false)
+        _binding = FragmentFirstBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_GlesFragment_to_SecondFragment)
+            findNavController().navigate(R.id.action_global_FragmentShaderList)
         }
         val renderName = arguments?.getString("RenderName")
         initGLSurfaceViw(renderName)
@@ -41,8 +45,7 @@ class GlesFragment: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        // TODO
-//        mGlesRender?.destroyShader()
+        mGlesRender?.destroyShader()
     }
 
     private fun initGLSurfaceViw(renderName:String?) {
@@ -51,7 +54,7 @@ class GlesFragment: Fragment() {
             Log.e("Gles", "initGLSurfaceViw apply $renderName")
             mGlesRender = GlesRender(it).apply {
                 this.initShader()
-                this.setGlesSurfaceView(binding.glsurfaceview)
+                this.setGLSurfaceView(binding.glsurfaceview)
             }
         }
     }

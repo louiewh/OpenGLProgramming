@@ -4,20 +4,22 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLES30
-import android.opengl.Matrix
 import android.util.Log
 import com.louiewh.opengl.ContextUtil
 import com.louiewh.opengl.R
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.IntBuffer
 import javax.microedition.khronos.opengles.GL10
 
 /**
- *
+ * 1. bitmap copy 后buf rewind
+ * 2. glGenTextures and glBindTexture
+ * 3. 图片反转问题， 修改纹理坐标
  */
-class Texture3DClubRender :BaseShader() {
+
+open class Texture2DShader :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0
@@ -28,107 +30,46 @@ class Texture3DClubRender :BaseShader() {
     private var vTexCoord = 0
     private var vSampler2D = 0
 
-    private var uMatrix = 0;
-
-    private val modelMatrix = getUnitMatrix()
-    private val viewMatrix = getUnitMatrix()
-    private val projectionMatrix = getUnitMatrix()
-    private val mvpMatrix = getUnitMatrix()
-
-    private var aspectRatio = 1.0f
-    private var angle = -55f
-
     override fun onInitGLES(program: Int) {
         vPosition  = GLES30.glGetAttribLocation(program, "aPos")
         vColor     = GLES30.glGetAttribLocation(program, "aColor")
         vTexCoord  = GLES30.glGetAttribLocation(program, "aTexCoord")
         vSampler2D = GLES30.glGetUniformLocation(program, "ourTexture")
-        uMatrix   = GLES30.glGetUniformLocation(program, "uMatrix")
-
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST)
 
         Log.e("Gles", "onInitGLES ->vPosition: $vPosition vColor: $vColor vTexCoord: $vTexCoord")
 
         initVBO()
-        // initEBO()
+        initEBO()
         initVAO()
         initTexture()
-    }
-
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-        super.onSurfaceChanged(gl, width, height)
-
-        aspectRatio = if (width > height) {
-            width.toFloat() / height
-        } else {
-            height.toFloat() / width
-        }
-
-        Matrix.rotateM(modelMatrix,0,-55f,1f,0f,0f)
-        Matrix.translateM(viewMatrix,0,0f,0f,-3f)
-        Matrix.perspectiveM(projectionMatrix,0,45f, aspectRatio,0.1f,100f)
-
-        Matrix.multiplyMM(mvpMatrix,0, viewMatrix,0, modelMatrix,0)
-        Matrix.multiplyMM(mvpMatrix,0, projectionMatrix,0, mvpMatrix,0)
-
         GLES30.glUseProgram(getShaderProgram())
-        GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
     }
 
     override fun onDestroyGLES() {
         GLES30.glDeleteBuffers(1, IntArray(VAO), 0)
         GLES30.glDeleteBuffers(1, IntArray(VBO), 0)
-        // GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
+        GLES30.glDeleteBuffers(1, IntArray(EBO), 0)
         GLES30.glDeleteTextures(1, IntArray(mTextureId), 0)
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture3DClubRender.vert")
+        return readGlslSource("Texture2DShader.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture3DClubRender.frag")
+        return readGlslSource("Texture2DShader.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
 
-        setMatrix()
-        GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
-
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
         GLES30.glBindVertexArray(VAO)
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 6, GLES30.GL_UNSIGNED_INT, 0)
 
         GLES30.glBindVertexArray(GLES30.GL_NONE)
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
     }
-
-    private fun setMatrix() {
-        Matrix.setIdentityM(modelMatrix, 0)
-        Matrix.setIdentityM(viewMatrix, 0)
-        Matrix.setIdentityM(projectionMatrix, 0)
-        Matrix.setIdentityM(mvpMatrix, 0)
-
-        angle += 1
-        angle %= 360
-        //设置 M
-        Matrix.rotateM(modelMatrix, 0, angle, 0.5f, 1.0f, 0f)
-        //设置 V
-        Matrix.translateM(viewMatrix, 0, 0f, 0f, -4f)
-        //设置 P
-        Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.3f, 100f)
-
-        Matrix.multiplyMM(mvpMatrix, 0, viewMatrix, 0, modelMatrix, 0)
-        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, mvpMatrix, 0)
-    }
-
-    private fun getUnitMatrix() =  floatArrayOf(
-        1f, 0f, 0f, 0f,
-        0f, 1f, 0f, 0f,
-        0f, 0f, 1f, 0f,
-        0f, 0f, 0f, 1f
-    )
 
     private fun initVBO() {
         val vertices = getVertices()
@@ -168,10 +109,11 @@ class Texture3DClubRender :BaseShader() {
         // VBO bind
         GLES30.glBindBuffer(GLES30.GL_ARRAY_BUFFER, VBO)
         // EBO bind
-        // GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
+        GLES30.glBindBuffer(GLES30.GL_ELEMENT_ARRAY_BUFFER, EBO)
 
-        GLES30.glVertexAttribPointer(vPosition, 3, GLES30.GL_FLOAT, false, 5 * VERTICES_FLOAT_SIZE, 0)
-        GLES30.glVertexAttribPointer(vTexCoord, 2, GLES30.GL_FLOAT, false, 5 * VERTICES_FLOAT_SIZE, 3*VERTICES_FLOAT_SIZE)
+        GLES30.glVertexAttribPointer(vPosition, 3, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 0)
+        GLES30.glVertexAttribPointer(vColor,    3, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 3*VERTICES_FLOAT_SIZE)
+        GLES30.glVertexAttribPointer(vTexCoord, 2, GLES30.GL_FLOAT, false, 8 * VERTICES_FLOAT_SIZE, 6*VERTICES_FLOAT_SIZE)
 
         GLES30.glEnableVertexAttribArray(vPosition)
         GLES30.glEnableVertexAttribArray(vColor)
@@ -186,42 +128,11 @@ class Texture3DClubRender :BaseShader() {
 
     private fun getVertices(): FloatBuffer {
         val vertices = floatArrayOf(
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-            0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 1.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f,  -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f,  -0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f,  0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+            // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
+            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
+            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
+            -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
+            -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
         )
 
         // vertices.length*4是因为一个float占四个字节
@@ -236,7 +147,7 @@ class Texture3DClubRender :BaseShader() {
         return vertexBuffer
     }
 
-    private fun getIndex(): IntBuffer {
+    private fun getIndex(): Buffer {
         val indices = intArrayOf(
             // 注意索引从0开始!
             // 此例的索引(0,1,2,3)就是顶点数组vertices的下标，
@@ -250,7 +161,7 @@ class Texture3DClubRender :BaseShader() {
             .order(ByteOrder.nativeOrder())
             .asIntBuffer()
             .put(indices)
-            .apply {
+            .run {
                 position(0)
             }
 

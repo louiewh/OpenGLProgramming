@@ -3,7 +3,7 @@ package com.louiewh.opengl.shader
 import android.opengl.GLES30
 
 
-open class ShaderMatrix: Texture2DRender() {
+open class ShaderMatrix: Texture2DShader() {
 
     protected var uMatrix = 0
 

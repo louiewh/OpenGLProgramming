@@ -17,7 +17,7 @@ import javax.microedition.khronos.opengles.GL10
 /**
  *
  */
-class Texture3DMutiClubRender :BaseShader() {
+class Texture3DClubShader :BaseShader() {
     private var VBO = 0
     private var VAO = 0
     private var EBO = 0
@@ -37,13 +37,6 @@ class Texture3DMutiClubRender :BaseShader() {
 
     private var aspectRatio = 1.0f
     private var angle = -55f
-
-    var mulPosition = floatArrayOf(
-        0.0f, 0.0f, 0.0f,
-        1.2f, 1.2f, -1.0f,
-        -1.5f, -1.3f, -2.5f,
-        -1.3f, 1.3f, -1.5f
-    )
 
     override fun onInitGLES(program: Int) {
         vPosition  = GLES30.glGetAttribLocation(program, "aPos")
@@ -90,30 +83,28 @@ class Texture3DMutiClubRender :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture3DMutiClubRender.vert")
+        return readGlslSource("Texture3DClubShader.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture3DMutiClubRender.frag")
+        return readGlslSource("Texture3DClubShader.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClear(GLES30.GL_DEPTH_BUFFER_BIT or GLES30.GL_COLOR_BUFFER_BIT)
 
-        for (i in 0..3) {
-            setMatrix(i)
-            GLES30.glUniformMatrix4fv(uMatrix, 1, false, mvpMatrix, 0)
+        setMatrix()
+        GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
 
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
-            GLES30.glBindVertexArray(VAO)
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, mTextureId)
+        GLES30.glBindVertexArray(VAO)
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, 36)
 
-            GLES30.glBindVertexArray(GLES30.GL_NONE)
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
-        }
+        GLES30.glBindVertexArray(GLES30.GL_NONE)
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, GLES30.GL_NONE)
     }
 
-    private fun setMatrix(index:Int) {
+    private fun setMatrix() {
         Matrix.setIdentityM(modelMatrix, 0)
         Matrix.setIdentityM(viewMatrix, 0)
         Matrix.setIdentityM(projectionMatrix, 0)
@@ -122,20 +113,9 @@ class Texture3DMutiClubRender :BaseShader() {
         angle += 1
         angle %= 360
         //设置 M
-        Matrix.rotateM(modelMatrix,
-            0,
-            angle,
-            mulPosition[index * 3] + 0.5f,
-            mulPosition[index * 3 + 1] + 1.0f,
-            mulPosition[index * 3 + 2])
-
+        Matrix.rotateM(modelMatrix, 0, angle, 0.5f, 1.0f, 0f)
         //设置 V
-        Matrix.translateM(viewMatrix,
-            0,
-            mulPosition[index * 3],
-            mulPosition[index * 3 + 1],
-            mulPosition[index * 3 + 2] - 4f - 3)
-
+        Matrix.translateM(viewMatrix, 0, 0f, 0f, -4f)
         //设置 P
         Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.3f, 100f)
 

@@ -90,11 +90,11 @@ class Texture3DMutiClubShader :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture3DMutiClubShader.vert")
+        return readGlslSource("Texture3DMutiClub.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture3DMutiClubShader.frag")
+        return readGlslSource("Texture3DMutiClub.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {

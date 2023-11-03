@@ -35,7 +35,7 @@ abstract class BaseShader {
     }
 
     fun onSurfaceCreated(){
-        GLES30.glClearColor(1.0f, 0F, 0F, 1.0f)
+        GLES30.glClearColor(0.0f, 0F, 0F, 1.0f)
 
         mProgram = createProgram(getVertexSource(), getFragmentSource())
         onInitGLES(mProgram)

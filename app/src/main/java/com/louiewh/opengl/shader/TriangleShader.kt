@@ -36,7 +36,7 @@ open class TriangleShader: BaseShader() {
         GLES30.glVertexAttribPointer(vPosition, 2, GLES30.GL_FLOAT, false, 8, vertices)
         GLES30.glEnableVertexAttribArray(vPosition)
 
-        GLES30.glUniform4f(uColor, 0.0f, 1.0f, 0.0f, 1.0f)
+        GLES30.glUniform4f(uColor, 0.0f, 1.0f, 1.0f, 1.0f)
         GLES30.glDrawArrays(GLES30.GL_TRIANGLE_STRIP, 0, 3)
     }
 

@@ -53,11 +53,11 @@ open class Texture2DShader :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture2DShader.vert")
+        return readGlslSource("Texture2D.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture2DShader.frag")
+        return readGlslSource("Texture2D.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {

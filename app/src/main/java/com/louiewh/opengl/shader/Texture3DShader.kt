@@ -79,11 +79,11 @@ class Texture3DShader :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("Texture3DShader.vert")
+        return readGlslSource("Texture3D.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("Texture3DShader.frag")
+        return readGlslSource("Texture3D.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {

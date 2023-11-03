@@ -82,11 +82,11 @@ open class YUVRender :BaseShader() {
     }
 
     override fun getVertexSource(): String {
-        return readGlslSource("YUVRender.vert")
+        return readGlslSource("YUV.vert")
     }
 
     override fun getFragmentSource(): String {
-        return readGlslSource("YUVRender.frag")
+        return readGlslSource("YUV.frag")
     }
 
     override fun onDrawFrame(gl: GL10?) {

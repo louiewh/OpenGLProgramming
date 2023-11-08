@@ -48,10 +48,20 @@ class Texture3DShader :BaseShader() {
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
 
-        val aspectRatio = if (width > height) {
+        var aspectRatio = if (width > height) {
             width.toFloat() / height
         } else {
             height.toFloat() / width
+        }
+
+        val orthoMatrix = getUnitMatrix()
+        val piot = 1f
+        aspectRatio *= piot
+
+        if (width > height){
+            Matrix.orthoM(orthoMatrix, 0, -aspectRatio, aspectRatio, -piot, piot, -piot, piot)
+        }else{
+            Matrix.orthoM(orthoMatrix,0, -piot, piot, -aspectRatio, aspectRatio, -piot, piot)
         }
 
         val modelMatrix = getUnitMatrix()
@@ -59,13 +69,14 @@ class Texture3DShader :BaseShader() {
         val projectionMatrix = getUnitMatrix()
         val mvpMatrix = getUnitMatrix()
 
-        // Matrix.rotateM(modelMatrix,0,-55f,1f,0f,0f)
-        Matrix.translateM(modelMatrix,0,0.0f,0f,-0.1f)
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 0.5f, 0f, 0f, 0f, 0f, 1f, 0f)
-        Matrix.perspectiveM(projectionMatrix, 0, 45f, aspectRatio, 0.1f, 100f)
+        // Matrix.rotateM(modelMatrix,0, -55f, 1f, 0f, 0f)
+//        Matrix.translateM(modelMatrix, 0, 0.0f, 0f, -0.1f)
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f, 5f, 0f, 0f, 0f, 0f, 1f, 0f)
+        Matrix.perspectiveM(projectionMatrix, 0, 20f, aspectRatio, 5f, 10f)
 
         Matrix.multiplyMM(mvpMatrix,0, viewMatrix,0, modelMatrix,0)
         Matrix.multiplyMM(mvpMatrix,0, projectionMatrix,0, mvpMatrix,0)
+//        Matrix.multiplyMM(mvpMatrix,0, orthoMatrix,0, mvpMatrix,0)
 
         GLES30.glUseProgram(getShaderProgram())
         GLES30.glUniformMatrix4fv(uMatrix,1,false, mvpMatrix,0)
@@ -162,10 +173,10 @@ class Texture3DShader :BaseShader() {
     private fun getVertices(): FloatBuffer {
         val vertices = floatArrayOf(
             // ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-            0.2f,  0.2f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
-            0.2f, -0.2f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
-            -0.2f, -0.2f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
-            -0.2f,  0.2f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
+            1.0f,  1.0f,  0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   // 右上
+            1.0f, -1.0f,  0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   // 右下
+            -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   // 左下
+            -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f    // 左上
         )
 
         // vertices.length*4是因为一个float占四个字节
